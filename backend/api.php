@@ -27,6 +27,7 @@ try {
         case 'getCourseEnrollmentsList': getCourseEnrollmentsList($conn); break;
         case 'getStudentsInCourse': getStudentsInCourse($conn); break;
         case 'getCoursesForStudent': getCoursesForStudent($conn); break;
+        case 'removeStudentFromCourse': removeStudentFromCourse($conn, $_POST); break;
         case 'getGrades': getGrades($conn); break;
         case 'addGrade': addGrade($conn, $_POST); break;
         case 'getAttendance': getAttendance($conn); break;
@@ -431,6 +432,60 @@ function getCoursesForStudent($conn) {
         'student' => $student,
         'courses' => $courses
     ]);
+}
+
+// ==================== REMOVE STUDENT FROM COURSE (NEW) ====================
+
+/**
+ * Permanently remove a student from a course
+ * This deletes the enrollment record (and cascades to delete grades and attendance)
+ */
+function removeStudentFromCourse($conn, $data) {
+    $enrollmentId = isset($data['enrollment_id']) ? (int)$data['enrollment_id'] : 0;
+    
+    if ($enrollmentId <= 0) {
+        echo json_encode(['success' => false, 'message' => 'Invalid enrollment ID']);
+        return;
+    }
+    
+    // Get info BEFORE deleting (for logging)
+    $infoQuery = "SELECT 
+                    e.EnrollmentID,
+                    s.Name AS StudentName,
+                    s.StudentID,
+                    c.CourseName,
+                    c.CourseCode,
+                    c.CourseID
+                  FROM Enrollments e
+                  INNER JOIN Students s ON e.StudentID = s.StudentID
+                  INNER JOIN Courses c ON e.CourseID = c.CourseID
+                  WHERE e.EnrollmentID = $enrollmentId";
+    
+    $infoResult = $conn->query($infoQuery);
+    
+    if ($infoResult->num_rows === 0) {
+        echo json_encode(['success' => false, 'message' => 'Enrollment not found']);
+        return;
+    }
+    
+    $info = $infoResult->fetch_assoc();
+    
+    // Delete the enrollment (grades + attendance cascade automatically via ON DELETE CASCADE)
+    $deleteQuery = "DELETE FROM Enrollments WHERE EnrollmentID = $enrollmentId";
+    
+    if ($conn->query($deleteQuery)) {
+        $details = "Removed student '" . $info['StudentName'] . "' from course '" . $info['CourseName'] . "' (" . $info['CourseCode'] . ")";
+        logActivity($conn, 'Removed student from course', 'Delete', 'Enrollment', $enrollmentId, $details, 200);
+        
+        echo json_encode([
+            'success' => true, 
+            'message' => "Successfully removed {$info['StudentName']} from {$info['CourseCode']}",
+            'student_name' => $info['StudentName'],
+            'course_code' => $info['CourseCode']
+        ]);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Failed to remove: ' . $conn->error]);
+    }
 }
 
 // ==================== GRADES ====================

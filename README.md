@@ -1,191 +1,279 @@
-# 🎓 Project 1: Smart University Network
+# 🎓 Student Management System (SMS)
 
-## Computer Networks — Complete Capstone Project
+> A comprehensive web-based database application for managing students, courses, enrollments, grades, and attendance in academic institutions.
 
-**A comprehensive solution combining a Student Management System web application with a Cisco Packet Tracer network simulation.**
-
----
-
-## 📦 What's Included
-
-This project has **two integrated components**:
-
-### 1. 💻 Student Management System (Web Application)
-- PHP + MySQL website
-- 21 files, full authentication, activity logging
-- Hosted on Apache server in the simulated network
-
-### 2. 🌐 Cisco Packet Tracer Simulation
-- Smart University network with Main + Branch campuses
-- All 17 required networking concepts implemented
-- VPN, OSPF, VoIP, QoS, and more
+[![MySQL](https://img.shields.io/badge/MySQL-8.0+-blue.svg)](https://www.mysql.com/)
+[![PHP](https://img.shields.io/badge/PHP-8.2-purple.svg)](https://www.php.net/)
+[![License](https://img.shields.io/badge/License-Academic-green.svg)](#)
+[![Status](https://img.shields.io/badge/Status-Complete-success.svg)](#)
 
 ---
 
-## 📁 Folder Structure
+## 👥 Team Members
+
+| # | Name | Student ID |
+|---|------|------------|
+| 1 | **Domaduios Youssef** 👑 | 24030159 |
+| 2 | **Nada Magdy** | 24030024 |
+| 3 | **Youssef Adel** | 24030021 |
+| 4 | **Salma Ahmed** | 24030027 |
+| 5 | **Shahd Mohamed** | 24030032 |
+
+> 👑 = Team Leader
+
+---
+
+## 📋 Project Overview
+
+The **Student Management System** is a fully functional database-driven web application designed to streamline academic administration. It centralizes student data, course management, enrollment tracking, grade recording, and attendance monitoring — all with role-based access control and comprehensive activity logging.
+
+### 🎯 Key Features
+
+- ✅ **Student Management** — Add, edit, view, and remove student profiles
+- ✅ **Course Catalog** — Manage course offerings with instructors and credits
+- ✅ **Enrollment System** — Many-to-many relationship with duplicate prevention
+- ✅ **Grade Recording** — Midterm, Final, Assignments + automatic GPA
+- ✅ **Attendance Tracking** — Daily attendance with multiple statuses
+- ✅ **Course Roster** — View all students enrolled in each course
+- ✅ **Authentication** — Login system with role-based access
+- ✅ **Activity Logging** — Complete audit trail with IP tracking
+- ✅ **SQL Views** — Pre-built analytical views
+- ✅ **Cascade Delete** — Maintain referential integrity
+
+---
+
+## 🗂️ Repository Structure
 
 ```
-Project1-University-SMS/
-├── 📄 README.md                  ← You are here
-├── 📄 PACKET_TRACER_GUIDE.md     ← Step-by-step network build guide
-├── 📄 QUICK_REFERENCE.md         ← Cheat sheet (commands & IPs)
-├── 📄 PRESENTATION_SCRIPT.md     ← What to say to your professor
-└── 📁 SMS-Web-App/               ← The PHP/MySQL website (21 files)
+📁 Student-Management-System/
+│
+├── 📄 README.md              ← You are here
+├── 📄 Proposal.md            ← Project proposal
+├── 📄 Schema.md              ← Database schema documentation
+├── 📄 ERD.png                ← Entity-Relationship Diagram
+├── 📄 database.sql           ← Complete SQL file (structure + data + views)
+└── 📄 Acknowledgement.md     ← Team credits and acknowledgements
 ```
 
 ---
 
-## ✅ All 17 Networking Concepts Covered
+## 🗃️ Database Schema
 
-| # | Concept | Implementation |
-|---|---------|----------------|
-| 1 | **Subnetting (VLSM)** | 7 subnets across 2 campuses |
-| 2 | **VLANs** | 7 VLANs (Admin/Staff/Students/Teachers/VoIP/Servers/Mgmt) |
-| 3 | **Inter-VLAN Routing** | Router-on-a-Stick |
-| 4 | **ACLs** | Block Students→Admin, restrict Teachers |
-| 5 | **Routing Protocols** | OSPF Area 0 |
-| 6 | **NAT/PAT** | Internet for all VLANs |
-| 7 | **VPN** | IPsec Site-to-Site (Main ↔ Branch) |
-| 8 | **DHCP** | 5 pools, one per user VLAN |
-| 9 | **DNS** | university.edu domain |
-| 10 | **STP** | Rapid PVST+ |
-| 11 | **Switch Security** | Port Security with sticky MAC |
-| 12 | **Static Routing** | Default route to ISP |
-| 13 | **Dynamic Routing** | OSPF |
-| 14 | **TCP/UDP** | HTTP (TCP) + DNS (UDP) + VoIP (UDP) |
-| 15 | **VoIP** | IP Phones with Call Manager Express |
-| 16 | **QoS** | Voice priority queue (40%) |
-| 17 | **Network Security** | ACLs + VPN + SSH + Port Security |
+The system uses **7 tables** in a normalized (3NF) relational design:
+
+| # | Table | Purpose |
+|---|-------|---------|
+| 1 | **Students** | Student personal information |
+| 2 | **Courses** | Course catalog |
+| 3 | **Enrollments** | Junction table (M:N) |
+| 4 | **Grades** | Academic performance |
+| 5 | **Attendance** | Daily attendance |
+| 6 | **Users** | System login accounts |
+| 7 | **ActivityLog** | Audit trail |
+
+Plus **4 SQL Views** for reporting:
+- `CourseRoster` — Course-student mapping
+- `CourseStatistics` — Aggregated course stats
+- `StudentCoursesView` — Reverse lookup
+- `AttendanceSummary` — Attendance percentages
 
 ---
 
-## 🚀 Quick Start
+## 🔗 Entity Relationships
 
-### Setup the Web Application
+```
+Students (1) ──< (N) Enrollments (N) >── (1) Courses
+                       │
+                       ├──< (N) Grades
+                       └──< (N) Attendance
 
-1. **Install XAMPP** from https://www.apachefriends.org
-2. **Copy** the `SMS-Web-App/` folder to `C:\xampp\htdocs\sms\`
-3. **Start** Apache + MySQL in XAMPP Control Panel
-4. **Open** `http://localhost/phpmyadmin`
-5. **Import** `database.sql` → then `activity_log.sql`
-6. **Open** `http://localhost/sms/login.php`
-7. **Login:** `admin` / `admin123`
+Users (Standalone)
+ActivityLog (Standalone)
+```
 
-### Build the Network
+### Relationship Details:
 
-1. **Install** Cisco Packet Tracer 8.x+
-2. **Open** `PACKET_TRACER_GUIDE.md`
-3. **Follow** the step-by-step instructions (~80 minutes)
-4. **Save** as `University_Network.pkt`
-
----
-
-## 🎯 Project Scenario
-
-**Smart University** is a modern educational institution operating on two campuses:
-
-### 🏫 Main Campus (Downtown)
-- **Administration** (VLAN 10) — Registrar, financial offices
-- **Staff** (VLAN 20) — Support staff
-- **Students** (VLAN 30) — Computer labs, library
-- **Teachers** (VLAN 40) — Faculty offices
-- **VoIP** (VLAN 60) — IP phones across all departments
-- **Servers** (VLAN 99) — SMS web server, DNS, Call Manager
-
-### 🏛️ Branch Campus (Suburban)
-- **Engineering Faculty** (VLAN 50) — Engineering department
-- **VoIP** (VLAN 60) — Branch IP phones
-
-### 🌐 How They're Connected
-- Both campuses connect to the Internet via separate ISP links
-- A **secure IPsec VPN tunnel** connects the two campuses
-- **OSPF** dynamically advertises routes between them
-- Faculty can make **VoIP calls** between campuses
-- **QoS** ensures call quality even under heavy load
+- **Students ↔ Courses:** Many-to-Many via `Enrollments`
+- **Enrollments → Grades:** One-to-One
+- **Enrollments → Attendance:** One-to-Many
+- **CASCADE DELETE:** Removing an enrollment auto-removes related grades & attendance
 
 ---
 
-## 📊 Network Statistics
+## 🚀 Installation & Setup
 
-- **Total Devices:** 18
-- **Routers:** 3 (Main, Branch, ISP)
-- **Switches:** 4 (1× L3, 3× L2)
-- **Servers:** 3 (SMS, DNS, Call Manager)
-- **End Devices:** 6 PCs + 3 IP Phones
-- **VLANs:** 7
-- **Subnets:** 9 (with VLSM)
-- **Total IPs Available:** 800+
+### Prerequisites
+- XAMPP (or any LAMP/WAMP stack)
+- MySQL 8.0+
+- PHP 8.0+
+- Web browser
 
----
+### Step 1: Clone the Repository
+```bash
+git clone https://github.com/[your-username]/Student-Management-System.git
+```
 
-## 🎓 Educational Value
+### Step 2: Set Up the Database
+1. Start **Apache** and **MySQL** in XAMPP
+2. Open phpMyAdmin: `http://localhost/phpmyadmin`
+3. Click **Import** → Select `database.sql` → **Go**
+4. The `student_management` database will be created automatically with sample data
 
-This project demonstrates:
-
-✅ **Network Design** — VLAN segmentation by department needs
-✅ **VLSM Subnetting** — efficient IP space usage
-✅ **Routing** — Static + Dynamic (OSPF) coexistence
-✅ **Security** — Multiple layers (Layer 2, 3, 7)
-✅ **Modern Services** — VoIP, VPN, QoS in one network
-✅ **Real-world Application** — actual web app running on the network
-
----
-
-## 💼 What You Can Demonstrate
-
-After completing this project, you can confidently:
-
-1. Design VLSM subnetting plans for any organization
-2. Configure Inter-VLAN routing with Router-on-a-Stick
-3. Set up OSPF dynamic routing
-4. Configure IPsec Site-to-Site VPN
-5. Deploy VoIP with Call Manager Express
-6. Implement QoS policies with priority queues
-7. Apply ACLs for traffic filtering
-8. Enable Port Security and STP
-9. Integrate web applications with network infrastructure
-10. Troubleshoot using Cisco IOS commands
+### Step 3: Verify Installation
+```sql
+USE student_management;
+SHOW TABLES;
+SELECT COUNT(*) FROM Students;
+```
 
 ---
 
-## 🐛 Troubleshooting
+## 🛠️ Technology Stack
 
-| Problem | Solution |
-|---------|----------|
-| Web app won't load | Check XAMPP Apache + MySQL are running |
-| Database error | Re-import `database.sql` in phpMyAdmin |
-| Cable lights red | Use Copper Straight-Through, not Crossover |
-| OSPF not forming | Check `network` statements match interface IPs |
-| VPN not establishing | Verify pre-shared key matches on both routers |
-| VoIP phones offline | Check DHCP option 150 = Call Manager IP |
-| ACL blocking too much | Use `show access-lists` to debug |
+| Layer | Technology |
+|-------|------------|
+| **Database** | MySQL 8.0+ |
+| **Backend** | PHP 8.2 |
+| **Frontend** | HTML5, CSS3, JavaScript |
+| **Server** | Apache (XAMPP) |
+| **DB Admin** | phpMyAdmin |
 
 ---
 
-## 📞 Default Credentials
+## 📊 Sample Data Included
 
-| Service | Username | Password |
-|---------|----------|----------|
-| SMS Web App | `admin` | `admin123` |
-| SSH (Routers) | `admin` | `AdminPass123` |
-| VPN PSK | — | `UniVPN2024` |
-
----
-
-## 🏆 Why This Project Stands Out
-
-✅ **Not just a website** — full network design + implementation
-✅ **Not just a Cisco lab** — real PHP/MySQL application running
-✅ **Two-layer demonstration** — application AND network engineering
-✅ **All 17 concepts** — meets every requirement
-✅ **Production-grade** — secure, scalable, professional
+- **30+ Students** across multiple departments and years
+- **15 Courses** across various CS topics
+- **20+ Enrollments** linking students to courses
+- **20+ Grade records** with GPA calculations
+- **20+ Attendance records** with various statuses
+- **7 User accounts** with different roles
+- **10+ Activity logs** demonstrating audit trail
 
 ---
 
-## 🎤 Ready to Present?
+## 🔐 Default Login Credentials
 
-Read `PRESENTATION_SCRIPT.md` for a 10-minute demo plan that will impress your professor.
+| Username | Password | Role |
+|----------|----------|------|
+| admin | admin123 | Admin |
+| registrar | reg123 | Registrar |
+| dr.mohamed | teach123 | Teacher |
+| staff1 | staff123 | Staff |
+
+> ⚠️ For demonstration purposes only. Change in production!
 
 ---
 
-**Good luck with your Computer Networks project! 🚀**
+## 📐 Normalization
+
+The database adheres to **Third Normal Form (3NF)**:
+- ✅ **1NF:** All attributes are atomic
+- ✅ **2NF:** No partial dependencies
+- ✅ **3NF:** No transitive dependencies
+
+---
+
+## 🎯 Key Design Decisions
+
+1. **Junction Table (Enrollments)**
+   - Resolves Many-to-Many between Students and Courses
+   - Stores enrollment-specific data (date, status)
+
+2. **Cascade Delete**
+   - Removes related Grades & Attendance when enrollment is deleted
+   - Maintains data integrity automatically
+
+3. **Indexes for Performance**
+   - On frequently queried fields (IP addresses, status, GPA, dates)
+
+4. **SQL Views**
+   - Pre-defined complex queries for common reporting needs
+   - No data duplication
+
+5. **IP Address Tracking**
+   - Network-aware system (integrates with the networking project)
+   - Security and audit capability
+
+---
+
+## 📑 Documentation
+
+- 📄 [**Proposal.md**](Proposal.md) — Project proposal and objectives
+- 📄 [**Schema.md**](Schema.md) — Detailed database schema
+- 🖼️ [**ERD.png**](ERD.png) — Visual entity-relationship diagram
+- 🙏 [**Acknowledgement.md**](Acknowledgement.md) — Team credits
+
+---
+
+## 🧪 Testing the System
+
+After installation, test these scenarios:
+
+### Test 1: View All Students
+```sql
+SELECT * FROM Students;
+```
+
+### Test 2: Course Enrollment Statistics
+```sql
+SELECT * FROM CourseStatistics;
+```
+
+### Test 3: Students in a Specific Course
+```sql
+SELECT * FROM CourseRoster WHERE CourseCode = 'CS101';
+```
+
+### Test 4: Student's Courses
+```sql
+SELECT * FROM StudentCoursesView WHERE StudentID = 1;
+```
+
+### Test 5: Attendance Summary
+```sql
+SELECT * FROM AttendanceSummary;
+```
+
+---
+
+## 🎓 Academic Context
+
+**Course:** Database Systems  
+**Project Type:** Database Design and Implementation  
+**Submission Date:** May 2026
+
+This project demonstrates practical application of:
+- Database design principles
+- Relational modeling
+- SQL programming
+- Web integration
+- Team collaboration
+
+---
+
+## 📜 License
+
+This project is developed for **academic purposes only**. All data used is fictional and serves educational demonstration.
+
+---
+
+## 🤝 Contributing
+
+This is an academic project submission. While contributions are not actively sought, feedback and suggestions are welcome.
+
+---
+
+## 👏 Acknowledgements
+
+Special thanks to our instructor, classmates, and families. See [Acknowledgement.md](Acknowledgement.md) for full details.
+
+---
+
+<div align="center">
+
+### 🎓 Made with ❤️ by Team SMS
+
+**Domaduios Youssef** 👑 • **Nada Magdy** • **Youssef Adel** • **Salma Ahmed** • **Shahd Mohamed**
+
+</div>

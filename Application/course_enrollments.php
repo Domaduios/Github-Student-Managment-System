@@ -265,6 +265,53 @@ $activeTab = 'courseroster';
             transition: width .3s;
         }
 
+        .btn-remove {
+            background: rgba(239,68,68,.15);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            transition: all .15s;
+        }
+        .btn-remove:hover {
+            background: var(--danger);
+            color: white;
+        }
+        .btn-remove:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--surface);
+            border: 1px solid var(--success);
+            border-left: 4px solid var(--success);
+            padding: 14px 20px;
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 13px;
+            box-shadow: 0 8px 20px rgba(0,0,0,.3);
+            z-index: 1000;
+            display: none;
+            animation: slideIn .3s;
+        }
+        .toast.error {
+            border-color: var(--danger);
+            border-left-color: var(--danger);
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
         .search-box {
             width: 100%;
             padding: 10px 14px;
@@ -331,6 +378,7 @@ async function loadCourses() {
             allCourses = data.courses;
             renderCourseList(allCourses);
             document.getElementById('courseCountBadge').textContent = allCourses.length;
+            return data;
         } else {
             document.getElementById('courseList').innerHTML = `<div class="loading">⚠️ ${data.message || 'Failed to load'}</div>`;
         }
@@ -472,6 +520,7 @@ function renderCourseDetails(data) {
                         <th>GPA</th>
                         <th>Attendance</th>
                         <th>IP</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -515,8 +564,81 @@ function renderStudentRow(s) {
             <td style="font-family:var(--mono);font-weight:700;">${gpa}</td>
             <td>${attendanceHtml}</td>
             <td style="font-family:var(--mono);font-size:11px;color:var(--text-muted);">${s.IPAddress || '—'}</td>
+            <td>
+                <button class="btn-remove" onclick="removeStudent(${s.EnrollmentID}, '${s.Name.replace(/'/g, "\\'")}', this)">
+                    🗑️ Remove
+                </button>
+            </td>
         </tr>
     `;
+}
+
+// Remove student from course
+async function removeStudent(enrollmentId, studentName, btn) {
+    if (!confirm(`Are you sure you want to remove ${studentName} from this course?\n\nThis will permanently delete:\n• The enrollment\n• Their grades for this course\n• Their attendance records for this course\n\nThis action cannot be undone.`)) {
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = '⟳ Removing...';
+
+    try {
+        const formData = new FormData();
+        formData.append('action', 'removeStudentFromCourse');
+        formData.append('enrollment_id', enrollmentId);
+
+        const res = await fetch('api.php', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            // Remove the row from table with animation
+            const row = btn.closest('tr');
+            row.style.transition = 'all .3s';
+            row.style.opacity = '0';
+            row.style.transform = 'translateX(20px)';
+            setTimeout(() => row.remove(), 300);
+
+            showToast(`✅ ${data.message}`, 'success');
+
+            // Reload course list to update counts
+            setTimeout(() => {
+                const activeCard = document.querySelector('.course-item.active');
+                if (activeCard) {
+                    const courseId = parseInt(activeCard.dataset.id);
+                    loadCourses().then(() => {
+                        const newCard = document.querySelector(`.course-item[data-id="${courseId}"]`);
+                        if (newCard) selectCourse(courseId, newCard);
+                    });
+                }
+            }, 400);
+        } else {
+            showToast(`❌ ${data.message || 'Failed to remove'}`, 'error');
+            btn.disabled = false;
+            btn.innerHTML = '🗑️ Remove';
+        }
+    } catch (err) {
+        showToast(`❌ Error: ${err.message}`, 'error');
+        btn.disabled = false;
+        btn.innerHTML = '🗑️ Remove';
+    }
+}
+
+function showToast(message, type) {
+    let toast = document.querySelector('.toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.className = 'toast';
+        document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.className = 'toast' + (type === 'error' ? ' error' : '');
+    toast.style.display = 'block';
+    setTimeout(() => {
+        toast.style.display = 'none';
+    }, 3500);
 }
 
 // Init

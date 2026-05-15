@@ -244,3 +244,5 @@ SELECT COUNT(*) AS TotalStudents FROM Students;
 SELECT StudentID, Name, Department, Year, IPAddress FROM Students LIMIT 5;
 
 SELECT Username, Role, Email, IPAddress, RegistrationDate FROM Users;
+
+
