@@ -1,3 +1,10 @@
+CREATE DATABASE student_management
+USE student_management;
+
+DROP VIEW IF EXISTS CourseRoster;
+DROP VIEW IF EXISTS CourseStatistics;
+DROP VIEW IF EXISTS StudentCoursesView;
+DROP VIEW IF EXISTS AttendanceSummary;
 DROP TABLE IF EXISTS Attendance;
 DROP TABLE IF EXISTS Grades;
 DROP TABLE IF EXISTS Enrollments;
@@ -73,30 +80,29 @@ CREATE TABLE Users (
 );
 
 CREATE TABLE ActivityLog (
-    LogID         INT PRIMARY KEY AUTO_INCREMENT,
-    Username      VARCHAR(50)  DEFAULT 'Anonymous',
-    UserRole      VARCHAR(20)  DEFAULT 'Guest',
-    Action           VARCHAR(100) NOT NULL,
-    Category      VARCHAR(30)  DEFAULT 'General',
-    TargetType    VARCHAR(50)  DEFAULT NULL,
-    TargetID      VARCHAR(50)  DEFAULT NULL,
-    IPAddress     VARCHAR(45)  DEFAULT NULL,
-    UserAgent     VARCHAR(255) DEFAULT NULL,
-    Method        VARCHAR(10)  DEFAULT NULL,
-    StatusCode    INT          DEFAULT 200,
-    Details       TEXT         DEFAULT NULL,
-    CreatedAt     TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
+    LogID INT PRIMARY KEY AUTO_INCREMENT,
+    Username VARCHAR(50) DEFAULT 'Anonymous',
+    UserRole VARCHAR(20) DEFAULT 'Guest',
+    Action VARCHAR(100) NOT NULL,
+    Category VARCHAR(30) DEFAULT 'General',
+    TargetType VARCHAR(50) DEFAULT NULL,
+    TargetID VARCHAR(50) DEFAULT NULL,
+    IPAddress VARCHAR(45) DEFAULT NULL,
+    UserAgent VARCHAR(255) DEFAULT NULL,
+    Method VARCHAR(10) DEFAULT NULL,
+    StatusCode INT DEFAULT 200,
+    Details TEXT DEFAULT NULL,
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
 
 CREATE INDEX idx_student_ip ON Students(IPAddress);
 CREATE INDEX idx_user_ip ON Users(IPAddress);
 CREATE INDEX idx_enrollment_status ON Enrollments(Status);
 CREATE INDEX idx_grade_gpa ON Grades(GPA);
-CREATE INDEX idx_log_user      ON ActivityLog(Username);
-CREATE INDEX idx_log_ip        ON ActivityLog(IPAddress);
-CREATE INDEX idx_log_category  ON ActivityLog(Category);
-CREATE INDEX idx_log_date      ON ActivityLog(CreatedAt);
+CREATE INDEX idx_log_user ON ActivityLog(Username);
+CREATE INDEX idx_log_ip ON ActivityLog(IPAddress);
+CREATE INDEX idx_log_category ON ActivityLog(Category);
+CREATE INDEX idx_log_date ON ActivityLog(CreatedAt);
 
 INSERT INTO Students (Name, Email, Phone, Department, Year, DateOfBirth, Address, IPAddress) VALUES
 ('Ahmed Mohamed Ali', 'ahmed.ali@cs.edu', '01012345678', 'Computer Science', 2, '2003-05-15', 'Cairo, Egypt', '192.168.1.101'),
@@ -129,7 +135,6 @@ INSERT INTO Students (Name, Email, Phone, Department, Year, DateOfBirth, Address
 ('Hamza Tarek Fahmy', 'hamza.tarek@cs.edu', '01289012345', 'Computer Science', 2, '2003-05-29', 'Cairo, Egypt', '192.168.1.128'),
 ('Ruqaya Hossam Adel', 'ruqaya.hossam@cs.edu', '01290123456', 'Computer Science', 3, '2002-09-13', 'Alexandria, Egypt', '192.168.1.129'),
 ('Oday Walid Salah', 'oday.walid@cs.edu', '01301234567', 'Computer Science', 2, '2003-03-21', 'Cairo, Egypt', '192.168.1.130');
-
 
 INSERT INTO Courses (CourseCode, CourseName, Department, Credits, Semester, InstructorName) VALUES
 ('CS101', 'Introduction to Programming', 'Computer Science', 3, 'Fall 2024', 'Dr. Mohamed Abdelrahman'),
@@ -170,7 +175,6 @@ INSERT INTO Enrollments (StudentID, CourseID, EnrollmentDate, Status) VALUES
 (10, 6, '2024-09-01', 'Active'),
 (10, 7, '2024-09-01', 'Active');
 
-
 INSERT INTO Grades (EnrollmentID, MidtermGrade, FinalGrade, AssignmentGrade, TotalGrade, LetterGrade, GPA) VALUES
 (1, 85.5, 88.0, 90.0, 87.83, 'A-', 3.67),
 (2, 92.0, 95.0, 93.0, 93.33, 'A', 4.00),
@@ -192,7 +196,6 @@ INSERT INTO Grades (EnrollmentID, MidtermGrade, FinalGrade, AssignmentGrade, Tot
 (18, 82.0, 85.0, 84.0, 83.67, 'B+', 3.33),
 (19, 94.0, 96.5, 95.0, 95.17, 'A+', 4.00),
 (20, 87.0, 90.0, 88.5, 88.50, 'A-', 3.67);
-
 
 INSERT INTO Attendance (EnrollmentID, AttendanceDate, Status, Notes) VALUES
 (1, '2024-09-01', 'Present', NULL),
@@ -216,7 +219,6 @@ INSERT INTO Attendance (EnrollmentID, AttendanceDate, Status, Notes) VALUES
 (7, '2024-09-01', 'Present', NULL),
 (7, '2024-09-03', 'Present', NULL);
 
-
 INSERT INTO Users (Username, Password, Role, Email, IPAddress, RegistrationDate) VALUES
 ('admin', 'admin123', 'Admin', 'admin@cs.edu', '192.168.1.1', '2024-01-15 09:00:00'),
 ('registrar', 'reg123', 'Registrar', 'registrar@cs.edu', '192.168.1.2', '2024-01-16 10:30:00'),
@@ -225,7 +227,6 @@ INSERT INTO Users (Username, Password, Role, Email, IPAddress, RegistrationDate)
 ('dr.sara', 'teach123', 'Teacher', 'dr.sara@cs.edu', '192.168.1.52', '2024-01-22 14:20:00'),
 ('staff1', 'staff123', 'Staff', 'staff1@cs.edu', '192.168.1.100', '2024-02-01 08:00:00'),
 ('staff2', 'staff123', 'Staff', 'staff2@cs.edu', '192.168.1.101', '2024-02-02 09:30:00');
-
 
 INSERT INTO ActivityLog (Username, UserRole, Action, Category, IPAddress, Method, Details, CreatedAt) VALUES
 ('admin',     'Admin',     'System initialized',  'System',   '192.168.1.1',   'GET',  'Database setup complete', NOW() - INTERVAL 2 DAY),
@@ -239,10 +240,75 @@ INSERT INTO ActivityLog (Username, UserRole, Action, Category, IPAddress, Method
 ('admin',     'Admin',     'Viewed network map',  'Network',  '192.168.1.1',   'GET',  'Network monitoring',      NOW() - INTERVAL 10 MINUTE),
 ('staff1',    'Staff',     'Failed login',        'Security', '192.168.1.105', 'POST', 'Invalid credentials',     NOW() - INTERVAL 5 MINUTE);
 
+CREATE VIEW CourseRoster AS
+SELECT c.CourseID, c.CourseCode, c.CourseName, c.Department AS CourseDepartment,
+       c.Credits, c.Semester, c.InstructorName,
+       s.StudentID, s.Name AS StudentName, s.Email AS StudentEmail,
+       s.Phone AS StudentPhone, s.Year AS StudentYear,
+       s.Department AS StudentDepartment, s.IPAddress AS StudentIP,
+       e.EnrollmentID, e.EnrollmentDate, e.Status AS EnrollmentStatus,
+       g.MidtermGrade, g.FinalGrade, g.AssignmentGrade,
+       g.TotalGrade, g.LetterGrade, g.GPA
+FROM Enrollments e
+INNER JOIN Courses c ON e.CourseID = c.CourseID
+INNER JOIN Students s ON e.StudentID = s.StudentID
+LEFT JOIN Grades g ON g.EnrollmentID = e.EnrollmentID
+ORDER BY c.CourseCode, s.Name;
+
+CREATE VIEW CourseStatistics AS
+SELECT c.CourseID, c.CourseCode, c.CourseName, c.Department, c.Credits,
+       c.Semester, c.InstructorName,
+       COUNT(e.EnrollmentID) AS TotalEnrollments,
+       COUNT(CASE WHEN e.Status='Active' THEN 1 END) AS ActiveStudents,
+       COUNT(CASE WHEN e.Status='Completed' THEN 1 END) AS CompletedStudents,
+       COUNT(CASE WHEN e.Status='Withdrawn' THEN 1 END) AS WithdrawnStudents,
+       ROUND(AVG(g.GPA),2) AS AverageGPA,
+       ROUND(AVG(g.TotalGrade),2) AS AverageGrade,
+       MAX(g.TotalGrade) AS HighestGrade,
+       MIN(g.TotalGrade) AS LowestGrade
+FROM Courses c
+LEFT JOIN Enrollments e ON c.CourseID = e.CourseID
+LEFT JOIN Grades g ON g.EnrollmentID = e.EnrollmentID
+GROUP BY c.CourseID, c.CourseCode, c.CourseName, c.Department,
+         c.Credits, c.Semester, c.InstructorName
+ORDER BY c.CourseCode;
+
+CREATE VIEW StudentCoursesView AS
+SELECT s.StudentID, s.Name AS StudentName, s.Email, s.Year,
+       s.Department AS StudentDepartment,
+       c.CourseID, c.CourseCode, c.CourseName, c.Credits, c.InstructorName,
+       e.EnrollmentID, e.EnrollmentDate, e.Status AS EnrollmentStatus,
+       g.TotalGrade, g.LetterGrade, g.GPA
+FROM Students s
+INNER JOIN Enrollments e ON s.StudentID = e.StudentID
+INNER JOIN Courses c ON e.CourseID = c.CourseID
+LEFT JOIN Grades g ON g.EnrollmentID = e.EnrollmentID
+ORDER BY s.Name, c.CourseCode;
+
+CREATE VIEW AttendanceSummary AS
+SELECT e.EnrollmentID, s.StudentID, s.Name AS StudentName,
+       c.CourseID, c.CourseCode, c.CourseName,
+       COUNT(a.AttendanceID) AS TotalDays,
+       COUNT(CASE WHEN a.Status='Present' THEN 1 END) AS PresentDays,
+       COUNT(CASE WHEN a.Status='Absent' THEN 1 END) AS AbsentDays,
+       COUNT(CASE WHEN a.Status='Late' THEN 1 END) AS LateDays,
+       CASE WHEN COUNT(a.AttendanceID) > 0
+            THEN ROUND((COUNT(CASE WHEN a.Status='Present' THEN 1 END) * 100.0 / COUNT(a.AttendanceID)), 1)
+            ELSE NULL END AS AttendancePercentage
+FROM Enrollments e
+INNER JOIN Students s ON e.StudentID = s.StudentID
+INNER JOIN Courses c ON e.CourseID = c.CourseID
+LEFT JOIN Attendance a ON a.EnrollmentID = e.EnrollmentID
+GROUP BY e.EnrollmentID, s.StudentID, s.Name,
+         c.CourseID, c.CourseCode, c.CourseName;
+         
 SELECT COUNT(*) AS TotalStudents FROM Students;
-
-SELECT StudentID, Name, Department, Year, IPAddress FROM Students LIMIT 5;
-
-SELECT Username, Role, Email, IPAddress, RegistrationDate FROM Users;
-
-
+SELECT COUNT(*) AS TotalCourses FROM Courses;
+SELECT COUNT(*) AS TotalEnrollments FROM Enrollments;
+SELECT 'CourseRoster' AS ViewName, COUNT(*) AS RecordCount FROM CourseRoster
+UNION ALL
+SELECT 'CourseStatistics', COUNT(*) FROM CourseStatistics
+UNION ALL
+SELECT 'StudentCoursesView', COUNT(*) FROM StudentCoursesView
+UNION ALL
+SELECT 'AttendanceSummary', COUNT(*) FROM AttendanceSummary;
